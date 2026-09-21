@@ -6,10 +6,13 @@ permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: mymindstorm/setup-emsdk@v14
+      - uses: actions/checkout@v7
+      - name: Setup Emscripten
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: 6.0.9
       - name: Fetch pinned libheif source
         run: git clone --depth 1 --branch v1.23.4 https://github.com/strukturag/libheif.git upstream-libheif
       - name: Build upstream Emscripten artifacts
@@ -48,13 +51,13 @@ jobs:
 
           echo "=== Artifact sizes ==="
           du -h _site/libheif/*
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with: { path: _site }
   deploy:
     environment: { name: github-pages, url: '${{ steps.deployment.outputs.page_url }}' }
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: build
     steps:
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
