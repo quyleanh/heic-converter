@@ -58,26 +58,11 @@ async function convert(files) {
     return;
   }
   const M = await getModule();
-  console.log("libheif module:", M);
-
-  console.log("libheif exported keys:", Object.keys(M).sort());
-
-  console.log(
-    "HEIF-related exports:",
-    Object.keys(M)
-      .filter(
-        (k) =>
-          k.toLowerCase().includes("heif") ||
-          k.toLowerCase().includes("image") ||
-          k.toLowerCase().includes("decode"),
-      )
-      .sort(),
-  );
   status.textContent = `Converting ${files.length} file(s)…`;
   for (const file of files) {
     try {
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const rgba = decodePrimary(M, bytes);
+      const rgba = await decodePrimary(M, bytes);
       const blob = await rgbaToBlob(
         rgba,
         format.value,
@@ -90,12 +75,44 @@ async function convert(files) {
   }
   status.textContent = "Done.";
 }
-function decodePrimary(M, bytes) {
-    console.log('Module:', M);
+async function decodePrimary(M, bytes) {
+  const decoder = new M.HeifDecoder();
 
-    throw new Error(
-        'Diagnostic mode: check DevTools Console for libheif exports.'
+  const images = decoder.decode(bytes);
+
+  if (!images || images.length === 0) {
+    throw new Error("No image found in HEIC/HEIF file.");
+  }
+
+  // For normal iPhone HEIC files, use the primary/first image.
+  const image = images[0];
+
+  const width = image.get_width();
+  const height = image.get_height();
+
+  const rgba = await new Promise((resolve, reject) => {
+    image.display(
+      {
+        data: new Uint8ClampedArray(width * height * 4),
+        width,
+        height,
+      },
+      (result) => {
+        if (!result) {
+          reject(new Error("libheif failed to decode the image."));
+          return;
+        }
+
+        resolve(result);
+      },
     );
+  });
+
+  return {
+    width,
+    height,
+    data: rgba.data,
+  };
 }
 async function rgbaToBlob(x, type, quality) {
   const c = document.createElement("canvas");
