@@ -20,9 +20,15 @@ jobs:
           # single-threaded browser decoder.
           sed -i 's/emcmake cmake /emcmake cmake -DBUILD_TESTING=OFF /' build-emscripten.sh
 
+          # Emscripten 6.x needs the C++ runtime during libheif's final link.
+          export EMCC_CFLAGS="-sDEFAULT_TO_CXX=1"
+
           mkdir buildjs
           cd buildjs
-          USE_WASM=1 ../build-emscripten.sh ..
+
+          USE_WASM=1 \
+          USE_ES6=1 \
+          ../build-emscripten.sh ..
       - name: Stage site and show upstream output
         run: |
           mkdir -p _site/libheif
