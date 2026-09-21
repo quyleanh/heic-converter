@@ -15,6 +15,11 @@ jobs:
       - name: Build upstream Emscripten artifacts
         working-directory: upstream-libheif
         run: |
+          # The upstream Emscripten helper currently configures tests.
+          # Tests require Threads/pthreads, which we don't need for our
+          # single-threaded browser decoder.
+          sed -i 's/emcmake cmake /emcmake cmake -DBUILD_TESTING=OFF /' build-emscripten.sh
+
           mkdir buildjs
           cd buildjs
           USE_WASM=1 ../build-emscripten.sh ..
