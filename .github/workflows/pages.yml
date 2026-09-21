@@ -29,13 +29,25 @@ jobs:
           USE_WASM=1 \
           USE_ES6=1 \
           ../build-emscripten.sh ..
-      - name: Stage site and show upstream output
+      - name: Stage GitHub Pages site
         run: |
           mkdir -p _site/libheif
-          cp index.html app.js style.css _site/
-          find upstream-libheif/buildjs -maxdepth 3 -type f \( -name '*.js' -o -name '*.wasm' \) -print
-          echo 'The exact upstream JS/WASM filenames/API can change. Adapt the copy/link step to the pinned release output and compile src/heif_bridge.cpp into the final module as documented in README.md.'
-          exit 1
+
+          cp index.html _site/
+          cp app.js _site/
+          cp style.css _site/
+
+          cp upstream-libheif/buildjs/libheif.js \
+            _site/libheif/libheif.js
+
+          cp upstream-libheif/buildjs/libheif.wasm \
+            _site/libheif/libheif.wasm
+
+          echo "=== GitHub Pages artifact ==="
+          find _site -type f -print
+
+          echo "=== Artifact sizes ==="
+          du -h _site/libheif/*
       - uses: actions/upload-pages-artifact@v3
         with: { path: _site }
   deploy:
