@@ -1,4 +1,7 @@
 name: Build libheif WASM and deploy Pages
+env:
+  LIBHEIF_VERSION: v1.23.4
+  EMSCRIPTEN_VERSION: 6.0.9
 on:
   push: { branches: [main] }
   workflow_dispatch:
@@ -12,9 +15,14 @@ jobs:
       - name: Setup Emscripten
         uses: emscripten-core/setup-emsdk@v16
         with:
-          version: 6.0.9
+          version: ${{ env.EMSCRIPTEN_VERSION }}
       - name: Fetch pinned libheif source
-        run: git clone --depth 1 --branch v1.23.4 https://github.com/strukturag/libheif.git upstream-libheif
+        run: |
+          git clone \
+          --depth 1 \
+          --branch "${LIBHEIF_VERSION}" \
+          https://github.com/strukturag/libheif.git \
+          upstream-libheif
       - name: Build upstream Emscripten artifacts
         working-directory: upstream-libheif
         run: |
@@ -54,7 +62,8 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with: { path: _site }
   deploy:
-    environment: { name: github-pages, url: '${{ steps.deployment.outputs.page_url }}' }
+    environment:
+      { name: github-pages, url: "${{ steps.deployment.outputs.page_url }}" }
     runs-on: ubuntu-26.04
     needs: build
     steps:

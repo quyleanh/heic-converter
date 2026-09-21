@@ -1,8 +1,8 @@
-# HEIC Local
+# HEIC Converter
 
 A fast, private, browser-based **HEIC/HEIF to JPEG/PNG converter** powered by [libheif](https://github.com/strukturag/libheif) and WebAssembly.
 
-**Live demo:** https://quyleanh.github.io/heic-local/
+**Live demo:** https://quyleanh.github.io/heic-converter/
 
 Images are decoded **locally in your browser**. The application does not need a conversion server and does not upload selected image files.
 
@@ -60,7 +60,7 @@ The generated libheif JavaScript module provides the high-level `HeifDecoder` an
 
 ## Privacy
 
-HEIC Local is designed so that selected images remain on the user's device.
+HEIC Converter is designed so that selected images remain on the user's device.
 
 The browser reads selected files using `File.arrayBuffer()` and passes the image data directly to the WebAssembly decoder. There is no image-upload API in this project.
 
@@ -81,7 +81,7 @@ Downloading the decoder is not the same as uploading the user's image.
 ## Repository structure
 
 ```text
-heic-local/
+heic-converter/
 ├── index.html
 ├── app.js
 ├── style.css
@@ -143,8 +143,8 @@ Click **Fork** at the top of the GitHub repository.
 Alternatively:
 
 ```bash
-git clone https://github.com/quyleanh/heic-local.git
-cd heic-local
+git clone https://github.com/quyleanh/heic-converter.git
+cd heic-converter
 ```
 
 ## 2. Enable GitHub Pages
@@ -177,16 +177,16 @@ The first build can take several minutes because Emscripten, libde265, and libhe
 
 ## 4. Open your site
 
-If your GitHub username is `YOUR-USERNAME` and the repository is named `heic-local`, the URL will normally be:
+If your GitHub username is `YOUR-USERNAME` and the repository is named `heic-converter`, the URL will normally be:
 
 ```text
-https://YOUR-USERNAME.github.io/heic-local/
+https://YOUR-USERNAME.github.io/heic-converter/
 ```
 
 For example:
 
 ```text
-https://quyleanh.github.io/heic-local/
+https://quyleanh.github.io/heic-converter/
 ```
 
 ## What GitHub Actions does
@@ -303,7 +303,7 @@ When upgrading libheif or Emscripten, review these compatibility adjustments bec
 
 HEIC images commonly store image data using HEVC/H.265. This build uses libde265 for HEVC decoding.
 
-HEIC Local only needs:
+HEIC Converter only needs:
 
 ```text
 HEIC -> decode -> RGBA
@@ -531,7 +531,7 @@ Keep or revert update
 
 # Licensing
 
-The original HEIC Local application code is provided under the license in `LICENSE`.
+The original HEIC Converter application code is provided under the license in `LICENSE`.
 
 Third-party software retains its own licenses. Review the licenses of at least:
 
@@ -544,7 +544,7 @@ Do not assume that all optional codec libraries supported by libheif have the sa
 
 # Credits
 
-HEIC Local is built using the open-source [strukturag/libheif](https://github.com/strukturag/libheif) project and Emscripten/WebAssembly.
+HEIC Converter is built using the open-source [strukturag/libheif](https://github.com/strukturag/libheif) project and Emscripten/WebAssembly.
 
 # Contributing
 
