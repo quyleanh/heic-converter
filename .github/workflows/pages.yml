@@ -1,0 +1,37 @@
+name: Build libheif WASM and deploy Pages
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mymindstorm/setup-emsdk@v14
+      - name: Fetch pinned libheif source
+        run: git clone --depth 1 --branch v1.23.4 https://github.com/strukturag/libheif.git upstream-libheif
+      - name: Build upstream Emscripten artifacts
+        working-directory: upstream-libheif
+        run: |
+          mkdir buildjs
+          cd buildjs
+          USE_WASM=1 ../build-emscripten.sh ..
+      - name: Stage site and show upstream output
+        run: |
+          mkdir -p _site/libheif
+          cp index.html app.js style.css _site/
+          find upstream-libheif/buildjs -maxdepth 3 -type f \( -name '*.js' -o -name '*.wasm' \) -print
+          echo 'The exact upstream JS/WASM filenames/API can change. Adapt the copy/link step to the pinned release output and compile src/heif_bridge.cpp into the final module as documented in README.md.'
+          exit 1
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+  deploy:
+    environment: { name: github-pages, url: '${{ steps.deployment.outputs.page_url }}' }
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
