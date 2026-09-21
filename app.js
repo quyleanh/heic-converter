@@ -31,27 +31,23 @@ drop.addEventListener("keydown", (e) => {
 let modulePromise;
 
 async function getModule() {
-    if (!modulePromise) {
-        modulePromise = (async () => {
-            const response = await fetch('./libheif/libheif.wasm');
+  if (!modulePromise) {
+    modulePromise = (async () => {
+      const response = await fetch("./libheif/libheif.wasm");
 
-            if (!response.ok) {
-                throw new Error(
-                    `Failed to load libheif.wasm: HTTP ${response.status}`
-                );
-            }
+      if (!response.ok) {
+        throw new Error(`Failed to load libheif.wasm: HTTP ${response.status}`);
+      }
 
-            const wasmBinary = new Uint8Array(
-                await response.arrayBuffer()
-            );
+      const wasmBinary = new Uint8Array(await response.arrayBuffer());
 
-            return createLibheif({
-                wasmBinary
-            });
-        })();
-    }
+      return createLibheif({
+        wasmBinary,
+      });
+    })();
+  }
 
-    return modulePromise;
+  return modulePromise;
 }
 async function convert(files) {
   files = files.filter(
@@ -62,6 +58,21 @@ async function convert(files) {
     return;
   }
   const M = await getModule();
+  console.log("libheif module:", M);
+
+  console.log("libheif exported keys:", Object.keys(M).sort());
+
+  console.log(
+    "HEIF-related exports:",
+    Object.keys(M)
+      .filter(
+        (k) =>
+          k.toLowerCase().includes("heif") ||
+          k.toLowerCase().includes("image") ||
+          k.toLowerCase().includes("decode"),
+      )
+      .sort(),
+  );
   status.textContent = `Converting ${files.length} file(s)…`;
   for (const file of files) {
     try {
@@ -80,11 +91,11 @@ async function convert(files) {
   status.textContent = "Done.";
 }
 function decodePrimary(M, bytes) {
-  if (typeof M.decodeHeifToRgba !== "function")
+    console.log('Module:', M);
+
     throw new Error(
-      "WASM bridge missing. See src/heif_bridge.cpp and README build notes.",
+        'Diagnostic mode: check DevTools Console for libheif exports.'
     );
-  return M.decodeHeifToRgba(bytes);
 }
 async function rgbaToBlob(x, type, quality) {
   const c = document.createElement("canvas");
